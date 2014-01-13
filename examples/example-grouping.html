@@ -112,7 +112,7 @@ var grid;
 var data = [];
 var columns = [
   {id: "sel", name: "#", field: "num", cssClass: "cell-selection", width: 40, resizable: false, selectable: false, focusable: false },
-  {id: "title", name: "Title", field: "title", width: 70, minWidth: 50, cssClass: "cell-title", sortable: true, editor: Slick.Editors.Text},
+  {id: "title1", name: "Title", field: "title1", width: 70, minWidth: 50, cssClass: "cell-title", sortable: true, editor: Slick.Editors.Text},
   {id: "duration", name: "Duration", field: "duration", width: 70, sortable: true, groupTotalsFormatter: sumTotalsFormatter},
   {id: "%", name: "% Complete", field: "percentComplete", width: 80, formatter: Slick.Formatters.PercentCompleteBar, sortable: true, groupTotalsFormatter: avgTotalsFormatter},
   {id: "start", name: "Start", field: "start", minWidth: 60, sortable: true},
@@ -126,7 +126,7 @@ var options = {
   editable: true
 };
 
-var sortcol = "title";
+var sortcol = "title1";
 var sortdir = 1;
 var percentCompleteThreshold = 0;
 var prevPercentCompleteThreshold = 0;
@@ -164,14 +164,17 @@ function groupByDuration() {
   dataView.setGrouping({
     getter: "duration",
     formatter: function (g) {
-      return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      g["percentComplete"] = g.totals.avg && g.totals.avg["percentComplete"];
+      g["cost"] = g.totals.sum && g.totals.sum["cost"];
+      return g.value;//"Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
     },
     aggregators: [
       new Slick.Data.Aggregators.Avg("percentComplete"),
       new Slick.Data.Aggregators.Sum("cost")
     ],
     aggregateCollapsed: false,
-    lazyTotalsCalculation: true
+    lazyTotalsCalculation: false,
+    displayTotalsRow: false
   });
 }
 
@@ -179,7 +182,9 @@ function groupByDurationOrderByCount(aggregateCollapsed) {
   dataView.setGrouping({
     getter: "duration",
     formatter: function (g) {
-      return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+      g["percentComplete"] = g.totals.avg && g.totals.avg["percentComplete"];
+      g["cost"] = g.totals.sum && g.totals.sum["cost"];
+      return g.value;//"Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
     },
     comparer: function (a, b) {
       return a.count - b.count;
@@ -189,7 +194,7 @@ function groupByDurationOrderByCount(aggregateCollapsed) {
       new Slick.Data.Aggregators.Sum("cost")
     ],
     aggregateCollapsed: aggregateCollapsed,
-    lazyTotalsCalculation: true
+    lazyTotalsCalculation: false
   });
 }
 
@@ -198,26 +203,31 @@ function groupByDurationEffortDriven() {
     {
       getter: "duration",
       formatter :function (g) {
-        return "Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        g["percentComplete"] = g.totals.avg && g.totals.avg["percentComplete"];
+        g["cost"] = g.totals.sum && g.totals.sum["cost"];
+        return g.value;//"Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
       },
       aggregators: [
         new Slick.Data.Aggregators.Sum("duration"),
         new Slick.Data.Aggregators.Sum("cost")
       ],
       aggregateCollapsed: true,
-      lazyTotalsCalculation: true
+      lazyTotalsCalculation: false
     },
     {
       getter: "effortDriven",
       formatter :function (g) {
-        return "Effort-Driven:  " + (g.value ? "True" : "False") + "  <span style='color:green'>(" + g.count + " items)</span>";
+        g["percentComplete"] = g.totals.avg && g.totals.avg["percentComplete"];
+        g["cost"] = g.totals.sum && g.totals.sum["cost"];
+        return (g.value ? "True" : "False"); //"Duration:  " + g.value + "  <span style='color:green'>(" + g.count + " items)</span>";
+        //return "Effort-Driven:  " + (g.value ? "True" : "False") + "  <span style='color:green'>(" + g.count + " items)</span>";
       },
       aggregators: [
         new Slick.Data.Aggregators.Avg("percentComplete"),
         new Slick.Data.Aggregators.Sum("cost")
       ],
       collapsed: true,
-      lazyTotalsCalculation: true
+      lazyTotalsCalculation: false
     }
   ]);
 }
@@ -271,7 +281,7 @@ function loadData(count) {
 
     d["id"] = "id_" + i;
     d["num"] = i;
-    d["title"] = "Task " + i;
+    d["title1"] = "Task " + i;
     d["duration"] = Math.round(Math.random() * 30);
     d["percentComplete"] = Math.round(Math.random() * 100);
     d["start"] = someDates[ Math.floor((Math.random()*2)) ];

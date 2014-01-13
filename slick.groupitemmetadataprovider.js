@@ -129,7 +129,6 @@
         cssClasses: options.groupCssClass,
         columns: {
           0: {
-            colspan: "*",
             formatter: options.groupFormatter,
             editor: null
           }
